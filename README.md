@@ -1,4 +1,4 @@
-entity-common
-=============
+php-common
+==========
 
-Common functionality for entities
+Common functionality for my PHP apps

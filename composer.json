@@ -1,6 +1,6 @@
 {
-    "name": "johnpancoast/entity-common",
-    "description": "Common functionality for entities",
+    "name": "johnpancoast/php-common",
+    "description": "Common functionality for my PHP apps",
     "license": "MIT",
     "authors": [
         {
@@ -12,7 +12,7 @@
         "php": ">=5.4.0"
     },
     "autoload": {
-        "psr-4": { "Pancoast\\EntityCommon\\": "src" }
+        "psr-4": { "Pancoast\\Common\\": "src" }
     }
 }
 
