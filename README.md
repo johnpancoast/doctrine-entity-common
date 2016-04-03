@@ -1,4 +1,4 @@
-doctrine-entity-common
-======================
+entity-common
+=============
 
 Common functionality for entities
