@@ -1,0 +1,18 @@
+{
+    "name": "johnpancoast/entity-common",
+    "description": "Common functionality for entities",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "John Pancoast",
+            "email": "johnpancoast@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0"
+    },
+    "autoload": {
+        "psr-4": { "Pancoast\\EntityCommon\\": "src" }
+    }
+}
+
