@@ -9,7 +9,7 @@
 namespace Pancoast\Common\Entity;
 
 /**
- * Contract for entity date ranges
+ * Contract for entities that have date ranges
  *
  * @author John Pancoast <johnpancoaster@gmail.com>
  */

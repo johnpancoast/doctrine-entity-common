@@ -9,7 +9,9 @@
 namespace Pancoast\Common\Entity;
 
 /**
- * Pancoast\Common\Entity\Status
+ * Statuses
+ *
+ * Not implementation of anything
  *
  * @author John Pancoast <johnpancoaster@gmail.com>
  */

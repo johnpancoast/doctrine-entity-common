@@ -9,22 +9,22 @@
 namespace Pancoast\Common\Entity;
 
 /**
- * A contract for an entity that has a name and string representation
+ * Contract for entities that have a name
  *
  * @author John Pancoast <johnpancoaster@gmail.com>
  */
-interface NameableInterface
+interface NameInterface
 {
     /**
      * @param string $title
      * @return object Instance of current entity after setting title
      */
-    public function setTitle($title);
+    public function setName($title);
 
     /**
      * @return string
      */
-    public function getTitle();
+    public function getName();
 
     /**
      * @return string Representation of object as a string

@@ -10,8 +10,11 @@ namespace Pancoast\Common\Entity;
 use Pancoast\Common\Entity\Status;
 
 /**
- * Pancoast\Common\Entity\StatusTrait
+ * Status behavior
  *
+ * This implements StatusInterface
+ *
+ * @see StatusInterface
  * @author John Pancoast <johnpancoaster@gmail.com>
  */
 trait StatusTrait
@@ -26,8 +29,8 @@ trait StatusTrait
      */
     public function setStatus($status)
     {
-        if (!in_array($status, Status::getStatuses(), true)) {
-            throw new \LogicException('$status must be one of the BaseBundle\Entity\Status constants');
+        if (!$this->isValidStatus($status)) {
+            throw new \LogicException(sprintf('Invalid status "%s"', $status));
         }
 
         $this->status = $status;
@@ -40,5 +43,15 @@ trait StatusTrait
     public function getStatus()
     {
         return $this->status;
+    }
+
+    /**
+     * @param $status
+     *
+     * @return bool
+     */
+    public function isValidStatus($status)
+    {
+        return in_array($status, Status::getStatuses(), true);
     }
 }

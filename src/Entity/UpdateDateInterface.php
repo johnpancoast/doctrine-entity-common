@@ -9,7 +9,7 @@
 namespace Pancoast\Common\Entity;
 
 /**
- * Entity contract for update (and create) dates
+ * Contract for entities that have update (and create) dates
  *
  * @author John Pancoast <johnpancoaster@gmail.com>
  */

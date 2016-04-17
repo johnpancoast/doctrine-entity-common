@@ -9,8 +9,11 @@
 namespace Pancoast\Common\Entity;
 
 /**
- * Date range trait
+ * Date range behavior
  *
+ * This implements DateRangeInterface.
+ *
+ * @see DateRangeInterface
  * @author John Pancoast <johnpancoaster@gmail.com>
  */
 trait DateRangeTrait

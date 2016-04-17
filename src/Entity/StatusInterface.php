@@ -9,23 +9,32 @@
 namespace Pancoast\Common\Entity;
 
 /**
- * Pancoast\Common\Entity\EntityStatusInterface
+ * Contract for entities that have statuses
  *
  * @author John Pancoast <johnpancoaster@gmail.com>
  */
-interface EntityStatusInterface
+interface StatusInterface
 {
     /**
      * Set status
      *
-     * @param string $status One of the {@see Status} constants.
+     * @param string|bool $status
      * @return $this
      */
     public function setStatus($status);
 
     /**
      * Get status
-     * @return string
+     * @return string|bool
      */
     public function getStatus();
+
+    /**
+     * Is passed status valid
+     *
+     * @param string|bool $status
+     *
+     * @return bool
+     */
+    public function isValidStatus($status);
 }

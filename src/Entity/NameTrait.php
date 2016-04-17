@@ -9,11 +9,14 @@
 namespace Pancoast\Common\Entity;
 
 /**
- * Nameable entity trait
+ * Name behavior
  *
+ * This implements the behavior in NameInterface
+ *
+ * @see NameInterface
  * @author John Pancoast <johnpancoaster@gmail.com>
  */
-trait NameableTrait
+trait NameTrait
 {
     /**
      * @var string

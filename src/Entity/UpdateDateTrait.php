@@ -9,8 +9,11 @@
 namespace Pancoast\Common\Entity;
 
 /**
- * Date trait
+ * Update (and create) date behavior
  *
+ * This implements behavior in UpdateDateInterface
+ *
+ * @see UpdateDateInterface
  * @author John Pancoast <johnpancoaster@gmail.com>
  */
 trait UpdateDateTrait
