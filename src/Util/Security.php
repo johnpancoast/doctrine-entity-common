@@ -30,9 +30,9 @@ class Security
     /**
      * Default byte length when none specified
      *
-     * 32 bytes * 8 = 512 bits of (pseudo) random data which should be secure enough.
+     * 64 bytes * 8 = 512 bits of (pseudo) random data which should be enough for most cases.
      */
-    const DEFAULT_RANDOM_BYTE_LENGTH = 32;
+    const DEFAULT_RANDOM_BYTE_LENGTH = 64;
 
     /**
      * Hashing algorithms
