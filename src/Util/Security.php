@@ -8,6 +8,7 @@
 namespace Pancoast\Common\Util;
 
 use Pancoast\Common\Exception\SystemCryptoException;
+use Pancoast\Common\Util\Security\KeyPair;
 
 /**
  * Security utilities
@@ -62,6 +63,21 @@ class Security
     public function generateHmac($data = null, $hashingAlgo = self::HASH_ALGO_SHA256)
     {
         return hash_hmac($hashingAlgo, $data ?: $this->generateSecureRandomBytes(), $this->privateKey);
+    }
+
+    /**
+     * Generate a key pair
+     *
+     * @param string|null $publicKey If null, this will be created automatically.
+     *
+     * @return KeyPair
+     * @throws SystemCryptoException If strong crypto was not available on the system.
+     */
+    public function generateKeyPair($publicKey = null)
+    {
+        $publicKey = $publicKey ?: $this->generateSecureRandomHex(16);
+
+        return new KeyPair($publicKey, $this->generateHmac($publicKey));
     }
 
     /**
