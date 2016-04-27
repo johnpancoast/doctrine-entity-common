@@ -57,7 +57,7 @@ class Security
      * @param string      $hashingAlgo
      *
      * @return string
-     * @throws SystemCryptoException If strong crypto was not available on the system.
+     * @throws SystemCryptoException If $data not supplied and strong crypto was not available on the system.
      * @see https://en.wikipedia.org/wiki/Hash-based_message_authentication_code
      */
     public function generateHmac($data = null, $hashingAlgo = self::HASH_ALGO_SHA256)
@@ -71,7 +71,7 @@ class Security
      * @param string|null $publicKey If null, this will be created automatically.
      *
      * @return KeyPair
-     * @throws SystemCryptoException If strong crypto was not available on the system.
+     * @throws SystemCryptoException If $publicKey not supplied and strong crypto was not available on the system.
      */
     public function generateKeyPair($publicKey = null)
     {
