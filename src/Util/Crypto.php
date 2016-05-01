@@ -8,14 +8,14 @@
 namespace Pancoast\Common\Util;
 
 use Pancoast\Common\Exception\SystemCryptoException;
-use Pancoast\Common\Util\Security\KeyPair;
+use Pancoast\Common\Util\Crypto\MessageSignature;
 
 /**
- * Security utilities
+ * Crypto utilities
  *
  * @author John Pancoast <johnpancoaster@gmail.com>
  */
-class Security
+class Crypto
 {
     /**
      * @var string Private key *Do not provide getter or outside/child access*
@@ -68,16 +68,16 @@ class Security
     /**
      * Generate a key pair
      *
-     * @param string|null $publicKey If null, this will be created automatically.
+     * @param string|null $message If null, this will be created automatically.
      *
-     * @return KeyPair
-     * @throws SystemCryptoException If $publicKey not supplied and strong crypto was not available on the system.
+     * @return MessageSignature
+     * @throws SystemCryptoException If strong crypto was not available on the system.
      */
-    public function generateKeyPair($publicKey = null)
+    public function generateMessageSignature($message = null)
     {
-        $publicKey = $publicKey ?: $this->generateSecureRandomHex(16);
+        $message = $message ?: $this->generateSecureRandomHex(16);
 
-        return new KeyPair($publicKey, $this->generateHmac($publicKey));
+        return new MessageSignature($message, $this->generateHmac($message));
     }
 
     /**
