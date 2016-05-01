@@ -7,6 +7,7 @@
 
 namespace Pancoast\Common\Util;
 
+use Pancoast\Common\Exception\InvalidHashingAlgorithmException;
 use Pancoast\Common\Exception\SystemCryptoException;
 use Pancoast\Common\Util\Crypto\MessageSignature;
 
@@ -15,125 +16,118 @@ use Pancoast\Common\Util\Crypto\MessageSignature;
  *
  * @author John Pancoast <johnpancoaster@gmail.com>
  */
-class Crypto
+class Crypto implements CryptoInterface
 {
     /**
-     * @var string Private key *Do not provide getter or outside/child access*
+     * @var string Private key
      */
     private $privateKey;
 
     /**
-     * How many times will we attempt to make a cryptographically strong string of bytes
+     * @var int How many times will we attempt to make a cryptographically strong string of bytes.
      */
-    const STRONG_CRYPTO_ATTEMPTS = 10;
+    private $strongCryptoAttempts;
 
     /**
-     * Default byte length when none specified
+     * @var int Default byte length when none specified.
      *
-     * 64 bytes * 8 = 512 bits of (pseudo) random data which should be enough for most cases.
+     * This should probably be at least 64 to mean 512 bits of random data.
      */
-    const DEFAULT_RANDOM_BYTE_LENGTH = 64;
+    private $defaultRandomByteLength;
+
+    /**
+     * @var string Default hashing algorithm mainly for calls to {@see self::generateHmac()}.
+     *
+     * One of the self::HASH_ALGO_* constants
+     */
+    private $defaultHashingAlgo;
 
     /**
      * Hashing algorithms
-     * @todo Add others as needed
+     *
+     * @todo Add others as needed and add to self::getHashingAlgos().
      */
     const HASH_ALGO_SHA256 = 'sha256';
 
     /**
      * Constructor
      *
-     * @param string $privateKey
+     * @param string $privateKey              Private key used for crypto, digital signing
+     * @param int    $strongCryptoAttempts    How many times we try to create a cryptograhpically strong token.
+     * @param int    $defaultRandomByteLength Default byte length for random strings
+     * @param string $defaultHashingAlgo      Default hashing algorithm mainly for calls to {@see self::generateHmac()}.
      */
-    public function __construct($privateKey)
+    public function __construct(
+        $privateKey,
+        $strongCryptoAttempts,
+        $defaultRandomByteLength,
+        $defaultHashingAlgo
+    )
     {
+        if (!is_int($strongCryptoAttempts)) {
+            throw new \InvalidArgumentException('$strongCrypto attempts must be of type int');
+        }
+
+        if (!is_int($defaultRandomByteLength)) {
+            throw new \InvalidArgumentException('$defaultRandomByteLength attempts must be of type int');
+        }
+
+        $this->validateHashingAlgo($defaultHashingAlgo);
+
         $this->privateKey = $privateKey;
+        $this->strongCryptoAttempts = $strongCryptoAttempts;
+        $this->defaultRandomByteLength = $defaultRandomByteLength;
+        $this->defaultHashingAlgo = $defaultHashingAlgo;
     }
 
     /**
-     * Generate an hmac
-     *
-     * @param null|string $data The data to hash. If null provided, random data will be generated.
-     * @param string      $hashingAlgo
-     *
-     * @return string
-     * @throws SystemCryptoException If $data not supplied and strong crypto was not available on the system.
-     * @see https://en.wikipedia.org/wiki/Hash-based_message_authentication_code
+     * @inheritDoc
      */
-    public function generateHmac($data = null, $hashingAlgo = self::HASH_ALGO_SHA256)
+    public function generateHmac($data, $hashingAlgo = null)
     {
-        return hash_hmac($hashingAlgo, $data ?: $this->generateSecureRandomBytes(), $this->privateKey);
+        return hash_hmac($hashingAlgo ?: $this->defaultHashingAlgo, $data, $this->privateKey);
     }
 
     /**
-     * Generate a key pair
-     *
-     * @param string|null $message If null, this will be created automatically.
-     *
-     * @return MessageSignature
-     * @throws SystemCryptoException If strong crypto was not available on the system.
+     * @inheritDoc
      */
     public function generateMessageSignature($message = null)
     {
-        $message = $message ?: $this->generateSecureRandomHex(16);
-
-        return new MessageSignature($message, $this->generateHmac($message));
+        return new MessageSignature($message ?: $this->generateSecureRandomHex(16), $this);
     }
 
     /**
-     * Generate cryptographically secure (pseudo) random base64 encoded string using bytelength
-     *
-     * Note that the resulting string will be longer than $byteLength due to conversion
-     *
-     * @param int|null $byteLength Length (in bytes) of binary data. If null passed then this defaults to {@see
-     *                         self::DEFAULT_RANDOM_BYTE_LENGTH}.
-     *
-     * @return string Base64 encoded string of binary data up to $byteLength
-     * @throws SystemCryptoException If strong crypto was not available on the system.
+     * @inheritDoc
      * @see self::DEFAULT_RANDOM_BYTE_LENGTH
      * @see self::STRONG_CRYPTO_ATTEMPTS
      */
-    public function generateSecureRandomBase64($byteLength = self::DEFAULT_RANDOM_BYTE_LENGTH)
+    public function generateSecureRandomBase64($byteLength = null)
     {
         return base64_encode($this->generateSecureRandomBytes($byteLength));
     }
 
     /**
-     * Generate cryptographically secure (pseudo) random hex using bytelength
-     *
-     * Note that the resulting string will be longer than $byteLength due to conversion
-     *
-     * @param int|null $byteLength Length (in bytes) of binary data. If null passed then this defaults to {@see
-     *                         self::DEFAULT_RANDOM_BYTE_LENGTH}.
-     *
-     * @return string Hex representation of binary data up to $byteLength
-     * @throws SystemCryptoException If strong crypto was not available on the system.
+     * @inheritDoc
      * @see self::DEFAULT_RANDOM_BYTE_LENGTH
      * @see self::STRONG_CRYPTO_ATTEMPTS
      */
-    public function generateSecureRandomHex($byteLength = self::DEFAULT_RANDOM_BYTE_LENGTH)
+    public function generateSecureRandomHex($byteLength = null)
     {
         return bin2hex($this->generateSecureRandomBytes($byteLength));
     }
 
     /**
-     * Generate cryptographically secure (pseudo) random bytes to a certain byte length
-     *
-     * @param int|null $length Length (in bytes) of binary data. If null passed then this defaults to {@see
-     *                         self::DEFAULT_RANDOM_BYTE_LENGTH}.
-     *
-     * @return string Binary data
-     * @throws SystemCryptoException If strong crypto was not available on the system.
+     * @inheritDoc
      * @see self::DEFAULT_RANDOM_BYTE_LENGTH
      * @see self::STRONG_CRYPTO_ATTEMPTS
      */
-    public function generateSecureRandomBytes($length = self::DEFAULT_RANDOM_BYTE_LENGTH)
+    public function generateSecureRandomBytes($byteLength = null)
     {
         $attempts = 0;
         $cryptoStrong = false;
         do {
             // TODO when php7 is common, consider using http://php.net/random_bytes instead
-            $bytes = openssl_random_pseudo_bytes($length, $cryptoStrong);
+            $bytes = openssl_random_pseudo_bytes($byteLength ?: $this->defaultRandomByteLength, $cryptoStrong);
             ++$attempts;
         } while (!$cryptoStrong && $attempts < self::STRONG_CRYPTO_ATTEMPTS);
 
@@ -142,5 +136,29 @@ class Crypto
         }
 
         return $bytes;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function getHashingAlgos()
+    {
+        return [
+            self::HASH_ALGO_SHA256
+        ];
+    }
+
+    /**
+     * Validate hashing algorithm
+     *
+     * @param string $hashingAlgo
+     *
+     * @throws \InvalidArgumentException If unexpected hashing algorithm.
+     */
+    private function validateHashingAlgo($hashingAlgo)
+    {
+        if (!in_array($hashingAlgo, self::getHashingAlgos())) {
+            throw new \InvalidArgumentException(sprintf('Unexpected hashing algorithm "%s"', $hashingAlgo));
+        }
     }
 }

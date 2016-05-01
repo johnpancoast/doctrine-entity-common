@@ -7,11 +7,10 @@
 
 namespace Pancoast\Common\Util\Crypto;
 
+use Pancoast\Common\Util\CryptoInterface;
+
 /**
  * Immutable message signature
- *
- * This simply represents a message and its signature. How they were created and their validity are outside the scope of
- * this class
  *
  * @author John Pancoast <johnpancoaster@gmail.com>
  */
@@ -30,13 +29,13 @@ class MessageSignature
     /**
      * Constructor
      *
-     * @param string $message
-     * @param string $signature
+     * @param                 $message Message you're creating signature for
+     * @param CryptoInterface $crypto class used to create the signature
      */
-    final public function __construct($message, $signature)
+    public function __construct($message, CryptoInterface $crypto)
     {
         $this->message = $message;
-        $this->signature = $signature;
+        $this->signature = $crypto->generateHmac($message);
     }
 
     /**
