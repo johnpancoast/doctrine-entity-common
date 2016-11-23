@@ -5,7 +5,7 @@
  * @license       MIT
  */
 
-namespace Pancoast\CodeChallenge;
+namespace Pancoast\Common\Util;
 
 /**
  * Helper util
