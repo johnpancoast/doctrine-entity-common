@@ -79,6 +79,14 @@ class Util
         return false;
     }
 
+    /**
+     * Validate that a $value is of type $type
+     *
+     * @param mixed $value
+     * @param string|array $type
+     *
+     * @throws \InvalidArgumentException
+     */
     public static function validateType($value, $type)
     {
         if (!self::isType($value, $type)) {
@@ -99,6 +107,27 @@ class Util
                 implode(', ', $printTypes),
                 is_object($value) ? get_class($value) : gettype($value)
             ));
+        }
+    }
+
+    /**
+     * Validate that several values are of types
+     *
+     * array e.g.,
+     * [
+     *     'value' => type,
+     *     'value' => type,
+     *      ...
+     * ]
+     *
+     * @param array $valueTypes
+     *
+     * @throws \InvalidArgumentException
+     */
+    public static function validateTypes(array $valueTypes = [])
+    {
+        foreach ($valueTypes as $value => $type) {
+            static::validateType($value, $type);
         }
     }
 }

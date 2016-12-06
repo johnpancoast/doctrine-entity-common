@@ -14,5 +14,5 @@ namespace Pancoast\Common\Exception;
  */
 class SystemCryptoException extends \Exception
 {
-    protected $message = 'Could not generate cryptographically secure bytes';
+    protected $message = 'System could not generate cryptographically secure random bytes';
 }
