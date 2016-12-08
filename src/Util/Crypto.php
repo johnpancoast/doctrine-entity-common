@@ -80,8 +80,8 @@ class Crypto implements CryptoInterface
     )
     {
         Util::validateTypes([
-            $privateKey => 'string',
-            $strongCryptoAttempts => 'int',
+            'string' => $privateKey,
+            'int' => $strongCryptoAttempts,
         ]);
 
         $this->privateKey = $privateKey;
@@ -94,8 +94,8 @@ class Crypto implements CryptoInterface
     public function generateHmac($message, $hashingAlgo = self::DEFAULT_HASHING_ALGO)
     {
         Util::validateTypes([
-            $message => 'string',
-            $hashingAlgo => 'string',
+            'string' => $message,
+            'string' => $hashingAlgo,
         ]);
 
         return hash_hmac($hashingAlgo, $message, $this->privateKey);

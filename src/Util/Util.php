@@ -71,12 +71,12 @@ class Util
                     throw new \InvalidArgumentException('$type must be a valid type or an array of valid types');
             }
 
-            if ($isValid) {
-                return $isValid;
+            if (!$isValid) {
+                return false;
             }
         }
 
-        return false;
+        return true;
     }
 
     /**
@@ -113,10 +113,13 @@ class Util
     /**
      * Validate that several values are of types
      *
+     * Note that we had to do the reverse of the other methods here because of PHPs RIDICULOUS handling or numeric
+     * array keys.
+     *
      * array e.g.,
      * [
-     *     'value' => type,
-     *     'value' => type,
+     *      'type' => 'value',
+     *      'type' => 'value',
      *      ...
      * ]
      *
@@ -126,7 +129,7 @@ class Util
      */
     public static function validateTypes(array $valueTypes = [])
     {
-        foreach ($valueTypes as $value => $type) {
+        foreach ($valueTypes as $type => $value) {
             static::validateType($value, $type);
         }
     }
