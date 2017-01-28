@@ -71,12 +71,13 @@ class Util
                     throw new \InvalidArgumentException('$type must be a valid type or an array of valid types');
             }
 
-            if (!$isValid) {
-                return false;
+            // if we found one valid, return, otherwise keep looking
+            if ($isValid) {
+                return true;
             }
         }
 
-        return true;
+        return false;
     }
 
     /**
