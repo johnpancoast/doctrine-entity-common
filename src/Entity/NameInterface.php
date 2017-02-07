@@ -17,6 +17,7 @@ interface NameInterface
 {
     /**
      * @param string $title
+     *
      * @return object Instance of current entity after setting title
      */
     public function setName($title);
@@ -25,9 +26,4 @@ interface NameInterface
      * @return string
      */
     public function getName();
-
-    /**
-     * @return string Representation of object as a string
-     */
-    public function __toString();
 }
