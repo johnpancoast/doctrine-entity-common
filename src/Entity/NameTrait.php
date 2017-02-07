@@ -21,31 +21,29 @@ trait NameTrait
     /**
      * @var string
      */
-    protected $title;
+    protected $name;
 
     /**
-     * @inheritDoc
+     * Get name
+     *
+     * @return string
      */
-    public function setTitle($title)
+    public function getName()
     {
-        $this->title = $title;
+        return $this->name;
+    }
+
+    /**
+     * Set name
+     *
+     * @param string $name
+     *
+     * @return $this
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+
         return $this;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getTitle()
-    {
-        return $this->title;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function __toString()
-    {
-        $title = $this->getTitle();
-        return $title ?: '';
     }
 }
