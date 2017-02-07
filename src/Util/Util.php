@@ -62,6 +62,10 @@ class Util
             $values = is_array($value) ? [$value] : $value;
         }
 
+        // Loop each passed value and loop each passed type for each value
+        // If one of the values doesn't match any of the types, save error and return false immediately.
+        // If a value does match a type, continue to the next value immediately (values must be of one of the types).
+        // If we reached the end, all values are of one of the types.
         for ($i = 0, $c = count($values); $i < $c; $i++) {
             $value = $values[$i];
 
@@ -119,8 +123,8 @@ class Util
                 }
             }
 
-            // Since all values must match type if we found a value that does not match any of the
-            // acceptable types, we can return right away.
+            // Since all values must match type, if we found a value that does not match any of the
+            // acceptable types we can return right away.
             if (!$isValid) {
                 if (count($values) > 1) {
                     $this->lastFailure = sprintf(
