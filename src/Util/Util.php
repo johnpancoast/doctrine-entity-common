@@ -96,7 +96,7 @@ class Util
                         $isValid = is_string($value);
                         break;
                     case 'traversable':
-                        $isValid = $this->isTraversable();
+                        $isValid = $this->isTraversable($value);
                         break;
                     case 'class':
                         $isValid = is_string($value) && class_exists($value);
