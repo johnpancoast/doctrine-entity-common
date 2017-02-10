@@ -98,6 +98,9 @@ class Util
                     case 'traversable':
                         $isValid = $this->isTraversable();
                         break;
+                    case 'class':
+                        $isValid = is_string($value) && class_exists($value);
+                        break;
                     // one final check for type check on class, interface, and trait.
                     // this should only be checked *after* all other type checks
                     // to avoid potential class collisions with the string types (although this is likely not possible
