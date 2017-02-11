@@ -13,17 +13,18 @@ use Pancoast\Common\Util\Exception\InvalidTypeArgumentException;
 /**
  * Helper util
  *
- * This should only contain generic utility/helper functionality
+ * This should only contain the most generic of utility/helper functionality
  *
  * @author John Pancoast <johnpancoaster@gmail.com>
  * @todo   This desperately needs tests
+ * @todo   Add self::validateTypeArray()
  */
 class Util
 {
     /**
      * @var null|string
      */
-    private $lastFailure;
+    protected static $lastFailure;
 
     /**
      * Is $value of $type
@@ -44,18 +45,18 @@ class Util
      * @return bool True if all $value(s) are of any of $type(s)
      * @throws InvalidTypeArgumentException If type passed is invalid
      */
-    public function isType($value, $type, $traverseValues = true)
+    public static function isType($value, $type, $traverseValues = true)
     {
         // clear last failure before starting
-        $this->lastFailure = null;
+        static::$lastFailure = null;
 
         // Change type so that all are looped below regardless of passed args
-        $types = $this->isTraversable($type) ? $type : [$type];
+        $types = static::isTraversable($type) ? $type : [$type];
 
         // Similar to types, do the same with values but take into consideration the $traverseValues arg. The goal being
         // to make structures that work for all cases below.
         if ($traverseValues) {
-            $values = $this->isTraversable($value) ? $value : [$value];
+            $values = static::isTraversable($value) ? $value : [$value];
         } else {
             // if not traversing values but an array was passed as value, put it into an array so as to not traverse the
             // elements but instead validate the top level structure itself.
@@ -96,7 +97,7 @@ class Util
                         $isValid = is_string($value);
                         break;
                     case 'traversable':
-                        $isValid = $this->isTraversable($value);
+                        $isValid = static::isTraversable($value);
                         break;
                     case 'class':
                         $isValid = is_string($value) && class_exists($value);
@@ -130,14 +131,14 @@ class Util
             // acceptable types we can return right away.
             if (!$isValid) {
                 if (count($values) > 1) {
-                    $this->lastFailure = sprintf(
+                    static::$lastFailure = sprintf(
                         'Expected $value(s) to be one of the following types [%s], received type %s at array index %s.',
                         implode(', ', $types),
                         is_object($value) ? get_class($value) : gettype($value),
                         $i
                     );
                 } else {
-                    $this->lastFailure = sprintf(
+                    static::$lastFailure = sprintf(
                         'Expected $value(s) to be one of the following types [%s], received type %s.',
                         implode(', ', $types),
                         is_object($value) ? get_class($value) : gettype($value)
@@ -155,7 +156,7 @@ class Util
     /**
      * Validate that a $value is of type $type
      *
-     * This shares the same API as self->isType($value, $type, $traverseValues) but instead throws an exception if all
+     * This shares the same API as self::isType($value, $type, $traverseValues) but instead throws an exception if all
      * values are not one of the acceptable types.
      *
      * @param mixed|array|\Traversable $value          Value or array of values of whose types must of be one of the
@@ -170,11 +171,12 @@ class Util
      *
      * @throws InvalidTypeArgumentException If type passed is invalid
      * @throws InvalidArgumentException     If $value does not match type
+     * @see self::isType()
      */
-    public function validateType($value, $type, $traverseValues = true)
+    public static function validateType($value, $type, $traverseValues = true)
     {
-        if (!$this->isType($value, $type, $traverseValues)) {
-            throw new InvalidArgumentException($this->getLastFailure());
+        if (!static::isType($value, $type, $traverseValues)) {
+            throw new InvalidArgumentException(static::$lastFailure);
         }
     }
 
@@ -198,23 +200,11 @@ class Util
      * @throws InvalidTypeArgumentException If type passed is invalid
      * @throws InvalidArgumentException     If $value does not match type
      */
-    public function getValidatedValue($value, $type, $traverseValues = true)
+    public static function getValidatedValue($value, $type, $traverseValues = true)
     {
-        $this->validateType($value, $type, $traverseValues);
+        static::validateType($value, $type, $traverseValues);
 
         return $value;
-    }
-
-    /**
-     * Get last invalid value
-     *
-     * Note that this is cleared each time you run self::isType()
-     *
-     * @return null|string
-     */
-    public function getLastFailure()
-    {
-        return $this->lastFailure;
     }
 
     /**
@@ -227,8 +217,20 @@ class Util
      *
      * @return bool
      */
-    public function isTraversable($value)
+    public static function isTraversable($value)
     {
         return is_array($value) || $value instanceof \Traversable;
+    }
+
+    /**
+     * Get last invalid value
+     *
+     * Note that this is cleared each time you run static::isType()
+     *
+     * @return null|string
+     */
+    public static function getLastFailure()
+    {
+        return static::$lastFailure;
     }
 }
