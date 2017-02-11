@@ -10,7 +10,7 @@ namespace Pancoast\Common\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Pancoast\Common\Exception\InvalidArgumentException;
 use Pancoast\Common\Util\Exception\InvalidTypeArgumentException;
-use Pancoast\Common\Util\Util;
+use Pancoast\Common\Util\Validator;
 
 /**
  * A general helper for entities using doctrine common's ArrayCollection
@@ -57,6 +57,6 @@ class ArrayCollectionHelper
      */
     public function getValidatedCollection($elements, $type)
     {
-        return (new Util())->getValidatedValue($this->getCollection($elements), $type);
+        return (new Validator())->getValidatedValue($this->getCollection($elements), $type);
     }
 }

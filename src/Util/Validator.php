@@ -11,15 +11,13 @@ use Pancoast\Common\Exception\InvalidArgumentException;
 use Pancoast\Common\Util\Exception\InvalidTypeArgumentException;
 
 /**
- * Helper util
- *
- * This should only contain the most generic of utility/helper functionality
+ * Generic type validator
  *
  * @author John Pancoast <johnpancoaster@gmail.com>
  * @todo   This desperately needs tests
  * @todo   Add self::validateTypeArray()
  */
-class Util
+class Validator
 {
     /**
      * @var null|string

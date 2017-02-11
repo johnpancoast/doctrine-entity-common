@@ -79,7 +79,7 @@ class Crypto implements CryptoInterface
         $strongCryptoAttempts = self::DEFAULT_STRONG_CRYPTO_ATTEMPTS
     )
     {
-        Util::validateTypes([
+        Validator::validateTypes([
             'string' => $privateKey,
             'int' => $strongCryptoAttempts,
         ]);
@@ -93,7 +93,7 @@ class Crypto implements CryptoInterface
      */
     public function generateHmac($message, $hashingAlgo = self::DEFAULT_HASHING_ALGO)
     {
-        Util::validateTypes([
+        Validator::validateTypes([
             'string' => $message,
             'string' => $hashingAlgo,
         ]);
@@ -106,7 +106,7 @@ class Crypto implements CryptoInterface
      */
     public function generateMessageSignature($message = null)
     {
-        Util::validateType($message, ['string', null]);
+        Validator::validateType($message, ['string', null]);
 
         return new MessageSignature($message ?: bin2hex($this->generateRandomBytes(16)), $this);
     }
@@ -117,7 +117,7 @@ class Crypto implements CryptoInterface
      */
     public function generateRandomBytes($byteLength = self::DEFAULT_RANDOM_BYTE_LENGTH)
     {
-        Util::validateType($byteLength, 'int');
+        Validator::validateType($byteLength, 'int');
 
         $cryptoStrong = false;
 
