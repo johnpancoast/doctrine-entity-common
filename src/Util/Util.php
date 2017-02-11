@@ -27,10 +27,12 @@ class Util
     protected static $lastFailure;
 
     /**
-     * Is $value of $type
+     * Check if value is of a type
      *
-     * Since this only returns a boolean you can use self->getLastFailure() to get the last failure if you passed
-     * an array of values for $value and you want to know which failed.
+     * You can pass a single value and type or you can pass an array of either. This method will return true if all
+     * values passed are of any of the passed types.
+     *
+     * Since this only returns a boolean you can use self::getLastFailure()} to get the last failure message.
      *
      * @param mixed|array|\Traversable $value          Value or array of values of whose types must be one of the
      *                                                 passed $type(s).
@@ -63,10 +65,8 @@ class Util
             $values = is_array($value) ? [$value] : $value;
         }
 
-        // Loop each passed value and loop each passed type for each value
-        // If one of the values doesn't match any of the types, save error and return false immediately.
-        // If a value does match a type, continue to the next value immediately (values must be of one of the types).
-        // If we reached the end, all values are of one of the types.
+        // loop each passed value, if value matches any of the types, loop to next value.
+        // if end reached
         for ($i = 0, $c = count($values); $i < $c; $i++) {
             $value = $values[$i];
 
@@ -127,8 +127,8 @@ class Util
                 }
             }
 
-            // Since all values must match type, if we found a value that does not match any of the
-            // acceptable types we can return right away.
+            // Since all values must match type, if current value didn't match any type,
+            // set last failure and return false
             if (!$isValid) {
                 if (count($values) > 1) {
                     static::$lastFailure = sprintf(
@@ -154,10 +154,10 @@ class Util
     }
 
     /**
-     * Validate that a $value is of type $type
+     * Validate that a value is of a type
      *
      * This shares the same API as self::isType($value, $type, $traverseValues) but instead throws an exception if all
-     * values are not one of the acceptable types.
+     * values are not of one of the acceptable types.
      *
      * @param mixed|array|\Traversable $value          Value or array of values of whose types must of be one of the
      *                                                 passed $type(s).
