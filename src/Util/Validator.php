@@ -100,6 +100,9 @@ class Validator
                     case 'class':
                         $isValid = is_string($value) && class_exists($value);
                         break;
+                    case 'interface':
+                        $isValid = is_string($value) && interface_exists($value);
+                        break;
                     // one final check for type check on class, interface, and trait.
                     // this should only be checked *after* all other type checks
                     // to avoid potential class collisions with the string types (although this is likely not possible
@@ -152,7 +155,7 @@ class Validator
     }
 
     /**
-     * Validate that a value is of a type
+     * Validate a value's type
      *
      * This shares the same API as self::isType($value, $type, $traverseValues) but instead throws an exception if all
      * values are not of one of the acceptable types.

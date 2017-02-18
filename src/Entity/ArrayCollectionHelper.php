@@ -60,3 +60,4 @@ class ArrayCollectionHelper
         return (new Validator())->getValidatedValue($this->getCollection($elements), $type);
     }
 }
+
