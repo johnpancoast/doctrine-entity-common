@@ -8,59 +8,66 @@
 namespace Pancoast\Common\Util;
 
 use Pancoast\Common\Exception\InvalidArgumentException;
+use Pancoast\Common\Util\Exception\NotTraversableException;
 use Pancoast\Common\Util\Exception\InvalidTypeArgumentException;
 
 /**
  * Generic type validator
  *
+ * This is a simple PHP type checking helper. It isn't for full-fledged validation like symfony/validator provides (for
+ * example). It's more for is_string() like checks but with helpful APIs to allow for multiple types or values to be
+ * checked with one call.
+ *
  * @author John Pancoast <johnpancoaster@gmail.com>
- * @todo   This desperately needs tests
+ * @todo   Add permanent tests (the code has been tested)
  * @todo   Add self::validateTypeArray()
  */
 class Validator
 {
     /**
-     * @var null|string
+     * Last failure
+     *
+     * @internal Cannot return this to client since class accessed statically. Only used internally
      */
-    protected static $lastFailure;
+    private static $lastFailure;
 
     /**
      * Check if value is of a type
      *
-     * You can pass a single value and type or you can pass an array of either. This method will return true if all
-     * values passed are of any of the passed types.
+     * You can pass a single value and type or you can pass an array of either. If you want to validate each element of
+     * an array (instead of the array itself), make sure to set $traverseValues to true.
      *
-     * Since this only returns a boolean you can use self::getLastFailure()} to get the last failure message.
+     * This method will return true if all values being validated (as decided by $traverseValues) are of any of the
+     * passed types.
      *
      * @param mixed|array|\Traversable $value          Value or array of values of whose types must be one of the
      *                                                 passed $type(s).
      * @param mixed|array|\Traversable $type           Type or array of acceptable types. $value(s) must be one of
      *                                                 these.
-     * @param bool                     $traverseValues By default, if you pass a traversable value to $value, each
-     *                                                 value will be validated against any of the types passed in
-     *                                                 $type. But sometimes, you just want to check the main type of
-     *                                                 $value without traversing, even if it's a traversable. Setting
-     *                                                 this to false allows that.
+     * @param bool                     $traverseValues By default, this method will check the top level structure
+     *                                                 passed to $value. Meaning if you passed an array, an array is
+     *                                                 what will be validated. Setting this to true allows each of the
+     *                                                 array elements to be validated instead (e.g., if you want to
+     *                                                 validate that all elements are a string, set this to true).
      *
-     * @return bool True if all $value(s) are of any of $type(s)
+     * @return bool True if all $value(s) (as based on $traverseValues setting) are of any of $type(s)
      * @throws InvalidTypeArgumentException If type passed is invalid
+     * @throws NotTraversableException If $traverseValues is true and $value not traversable
      */
-    public static function isType($value, $type, $traverseValues = true)
+    public static function isType($value, $type, $traverseValues = false)
     {
-        // clear last failure before starting
-        static::$lastFailure = null;
+        self::$lastFailure;
 
-        // Change type so that all are looped below regardless of passed args
         $types = static::isTraversable($type) ? $type : [$type];
 
-        // Similar to types, do the same with values but take into consideration the $traverseValues arg. The goal being
-        // to make structures that work for all cases below.
         if ($traverseValues) {
-            $values = static::isTraversable($value) ? $value : [$value];
+            if (!static::isTraversable($value)) {
+                throw new NotTraversableException('Attempting to traverse a non-traversable $value');
+            }
         } else {
             // if not traversing values but an array was passed as value, put it into an array so as to not traverse the
-            // elements but instead validate the top level structure itself.
-            $values = is_array($value) ? [$value] : $value;
+            // elements below.
+            $values = static::isTraversable($value) ? [$value] : $value;
         }
 
         // loop each passed value, if value matches any of the types, loop to next value.
@@ -83,6 +90,41 @@ class Validator
                     case 'array':
                         $isValid = is_array($value);
                         break;
+                    // sequential array
+                    case 'array_seq':
+                        if (!is_array($value)) {
+                            $isValid = false;
+                            break;
+                        }
+
+                        for (reset($arr), $base = 0; key($arr) === $base++; next($arr));
+                        $isValid = is_null(key($arr));
+                        break;
+                    // indexed array
+                    case 'array_ind':
+                        if (!is_array($value)) {
+                            $isValid = false;
+                            break;
+                        }
+
+                        for (reset($value); is_int(key($value)); next($value));
+                        $isValid = is_null(key($value));
+                        break;
+                    // note that in PHP all arrays are associative in reality. these are just helper
+                    // checks that really say "is the array not indexed".
+                    case 'hash':
+                    case 'assoc':
+                    case 'associative':
+                        if (!is_array($value)) {
+                            $isValid = false;
+                            break;
+                        }
+
+                        // if value is an array that's not indexed
+                        // this is the best check possible in PHP but be aware of
+                        // the limitations.
+                        $isValid = !static::isType($value, 'array_ind');
+                        break;
                     case 'bool':
                     case 'boolean':
                         $isValid = is_bool($value);
@@ -99,6 +141,9 @@ class Validator
                         break;
                     case 'class':
                         $isValid = is_string($value) && class_exists($value);
+                        break;
+                    case 'interface':
+                        $isValid = is_string($value) && interface_exists($value);
                         break;
                     // one final check for type check on class, interface, and trait.
                     // this should only be checked *after* all other type checks
@@ -128,16 +173,16 @@ class Validator
             // Since all values must match type, if current value didn't match any type,
             // set last failure and return false
             if (!$isValid) {
-                if (count($values) > 1) {
-                    static::$lastFailure = sprintf(
-                        'Expected $value(s) to be one of the following types [%s], received type %s at array index %s.',
+                if ($traverseValues && static::isTraversable($value)) {
+                    self::$lastFailure = sprintf(
+                        'Expected all $value(s) to be one of the following types [%s], received type %s at array index %s.',
                         implode(', ', $types),
                         is_object($value) ? get_class($value) : gettype($value),
                         $i
                     );
                 } else {
-                    static::$lastFailure = sprintf(
-                        'Expected $value(s) to be one of the following types [%s], received type %s.',
+                    self::$lastFailure = sprintf(
+                        'Expected $value to be one of the following types [%s], received type %s.',
                         implode(', ', $types),
                         is_object($value) ? get_class($value) : gettype($value)
                     );
@@ -152,7 +197,7 @@ class Validator
     }
 
     /**
-     * Validate that a value is of a type
+     * Validate a value's type
      *
      * This shares the same API as self::isType($value, $type, $traverseValues) but instead throws an exception if all
      * values are not of one of the acceptable types.
@@ -161,44 +206,45 @@ class Validator
      *                                                 passed $type(s).
      * @param mixed|array|\Traversable $type           Type or array of acceptable types. $value(s) must be one of
      *                                                 these.
-     * @param bool                     $traverseValues By default, if you pass a traversable value to $value, each
-     *                                                 value will be validated against any of the types passed in
-     *                                                 $type. But sometimes, you just want to check the main type of
-     *                                                 $value without traversing, even if it's a traversable. Setting
-     *                                                 this to false allows that.
+     * @param bool                     $traverseValues By default, this method will check the top level structure
+     *                                                 passed to $value. Meaning if you passed an array, an array is
+     *                                                 what will be validated. Setting this to true allows each of the
+     *                                                 array elements to be validated instead (e.g., if you want to
+     *                                                 validate that all elements are a string, set this to true).
      *
      * @throws InvalidTypeArgumentException If type passed is invalid
      * @throws InvalidArgumentException     If $value does not match type
-     * @see self::isType()
+     * @throws NotTraversableException If $traverseValues is true and $value not traversable
+     * @see Validator::isType()
      */
-    public static function validateType($value, $type, $traverseValues = true)
+    public static function validateType($value, $type, $traverseValues = false)
     {
         if (!static::isType($value, $type, $traverseValues)) {
-            throw new InvalidArgumentException(static::$lastFailure);
+            throw new InvalidArgumentException(self::$lastFailure);
         }
     }
 
     /**
      * Validate that a $value is of type $type then return it
      *
-     * This shares the same API as self->isType($value, $type, $traverseValues) but instead throws an exception if all
-     * values are not one of the acceptable types.
+     * Same as self::validateType() but returns the validated value.
      *
      * @param mixed|array|\Traversable $value          Value or array of values of whose types must of be one of the
      *                                                 passed $type(s).
      * @param mixed|array|\Traversable $type           Type or array of acceptable types. $value(s) must be one of
      *                                                 these.
-     * @param bool                     $traverseValues By default, if you pass a traversable value to $value, each
-     *                                                 value will be validated against any of the types passed in
-     *                                                 $type. But sometimes, you just want to check the main type of
-     *                                                 $value without traversing, even if it's a traversable. Setting
-     *                                                 this to false allows that.
+     * @param bool                     $traverseValues By default, this method will check the top level structure
+     *                                                 passed to $value. Meaning if you passed an array, an array is
+     *                                                 what will be validated. Setting this to true allows each of the
+     *                                                 array elements to be validated instead (e.g., if you want to
+     *                                                 validate that all elements are a string, set this to true).
      *
      * @return mixed Your $value that is a valid type
      * @throws InvalidTypeArgumentException If type passed is invalid
      * @throws InvalidArgumentException     If $value does not match type
+     * @throws NotTraversableException If $traverseValues is true and $value not traversable
      */
-    public static function getValidatedValue($value, $type, $traverseValues = true)
+    public static function getValidatedValue($value, $type, $traverseValues = false)
     {
         static::validateType($value, $type, $traverseValues);
 
@@ -218,17 +264,5 @@ class Validator
     public static function isTraversable($value)
     {
         return is_array($value) || $value instanceof \Traversable;
-    }
-
-    /**
-     * Get last invalid value
-     *
-     * Note that this is cleared each time you run static::isType()
-     *
-     * @return null|string
-     */
-    public static function getLastFailure()
-    {
-        return static::$lastFailure;
     }
 }

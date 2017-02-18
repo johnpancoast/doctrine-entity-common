@@ -73,19 +73,18 @@ class Crypto implements CryptoInterface
      *
      * @param string $privateKey           Private key used for crypto, message signatures
      * @param int    $strongCryptoAttempts How many times we try to create a cryptograhpically strong token.
+     *
+     * @throws Exception\InvalidTypeArgumentException
+     * @throws Exception\NotTraversableException
+     * @throws \Pancoast\Common\Exception\InvalidArgumentException
      */
     public function __construct(
         $privateKey,
         $strongCryptoAttempts = self::DEFAULT_STRONG_CRYPTO_ATTEMPTS
     )
     {
-        Validator::validateTypes([
-            'string' => $privateKey,
-            'int' => $strongCryptoAttempts,
-        ]);
-
-        $this->privateKey = $privateKey;
-        $this->strongCryptoAttempts = $strongCryptoAttempts;
+        $this->privateKey = Validator::getValidatedValue($privateKey, 'string');
+        $this->strongCryptoAttempts = Validator::getValidatedValue($strongCryptoAttempts, 'int');
     }
 
     /**
@@ -93,10 +92,7 @@ class Crypto implements CryptoInterface
      */
     public function generateHmac($message, $hashingAlgo = self::DEFAULT_HASHING_ALGO)
     {
-        Validator::validateTypes([
-            'string' => $message,
-            'string' => $hashingAlgo,
-        ]);
+        Validator::validateType([$message, $hashingAlgo], 'string');
 
         return hash_hmac($hashingAlgo, $message, $this->privateKey);
     }
