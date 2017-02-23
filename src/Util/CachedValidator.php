@@ -29,17 +29,19 @@ class CachedValidator extends Validator
      * @param array|mixed|\Traversable $value
      * @param array|mixed|\Traversable $type
      * @param bool                     $traverseValues
-     * @param bool                     $cache
+     * @param bool                     $useCache
      *
      * @return bool
      * @throws \Pancoast\Common\Util\Exception\InvalidTypeArgumentException
      * @throws \Pancoast\Common\Util\Exception\NotTraversableException
      */
-    public static function isType($value, $type, $traverseValues = false, $cache = true)
+    public static function isType($value, $type, $traverseValues = false, $useCache = true)
     {
-        $key = serialize(serialize($value).'-'.$type.'-'.$traverseValues);
+        $args = func_get_args();
+        unset($args[3]);
+        $key = serialize($args);
 
-        if (!isset(self::$cache[$key]) || !$cache) {
+        if (!isset(self::$cache[$key]) || !$useCache) {
             self::$cache[$key] = parent::isType($value, $type, $traverseValues);
         }
 
