@@ -109,7 +109,10 @@ class ObjectRegistry implements ObjectRegistryInterface
         // only load lazy loadable objects that haven't already been loaded. this also prevents infinite loops for
         // cases where loaded object are also lazy loadable.
         if ($object instanceof LazyLoadableObjectInterface && !$this->lazyLoadKeys[$objectKey] ) {
+            // load object, set to internals
             $object = $object->loadObject($objectKey);
+            $this->coll->set($objectKey, $object);
+
             $this->lazyLoadKeys[$objectKey] = true;
         }
 
