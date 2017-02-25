@@ -44,16 +44,9 @@ interface KnownObjectRegistryInterface extends ObjectRegistryInterface
     /**
      * Get default object
      *
-     * If nothing passed for $key, the current is returned, otherwise you can return the key
-     * that was passed when you set the default object.
-     *
-     * @param null|string $defaultKey
-     *
      * @return object|null
-     * @throws DefaultKeyNotSupportedException If $key explicitly passed and doesn't exist. If no key passed and no
-     *                                         default set, this method just returns null.
      */
-    public function getDefaultObject($defaultKey = null);
+    public function getDefaultObject();
 
     /**
      * Default object used when null passed to self::register()
@@ -63,7 +56,6 @@ interface KnownObjectRegistryInterface extends ObjectRegistryInterface
      * @return string The object key (as registered to this class)
      */
     public function setDefaultObject($object);
-
 
     /**
      * Is object or class supported
@@ -76,7 +68,7 @@ interface KnownObjectRegistryInterface extends ObjectRegistryInterface
      * @return bool
      * @internal param object|string $class Class or object to be checked
      */
-    public static function isSupported($object, $objectKey = null);
+    public function isSupported($object, $objectKey = null);
 
     /**
      * Is object key supported by this registry
@@ -86,23 +78,23 @@ interface KnownObjectRegistryInterface extends ObjectRegistryInterface
      * @return bool
      * @throws InvalidArgumentException
      */
-    public static function isSupportedKey($objectKey);
+    public function isSupportedKey($objectKey);
 
     /**
-     * Get expected type for an object key
+     * Get supported types for an object key
      *
-     * This will return the class or interface that must be inherited or implemented to register to an $objectKey
+     * This will return all types that a key can register to, including defaults.
      *
-     * @param string $objectKey Object key
+     * @param null|string $objectKey Object key or
      *
-     * @return string
-     * @throws ObjectKeyNotSupportedException
-     * @throws InvalidArgumentException
+     * @return array
      */
-    public static function getExpectedType($objectKey);
+    public function getSupportedTypes($objectKey = null);
 
     /**
-     * @return SupportedTypesInterface
+     * Get all supported types
+     *
+     * @return array
      */
-    public static function getSupportedTypes();
+    public function getAllSupportedTypes();
 }

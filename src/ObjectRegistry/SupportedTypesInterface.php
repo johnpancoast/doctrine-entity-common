@@ -7,6 +7,10 @@
 
 namespace Pancoast\Common\ObjectRegistry;
 
+use Pancoast\Common\Exception\InvalidArgumentException;
+use Pancoast\Common\ObjectRegistry\Exception\ObjectKeyNotSupportedException;
+use Pancoast\Common\ObjectRegistry\Exception\ObjectNotSupportedException;
+
 /**
  * Simple config object of supported types for an object registry
  *
@@ -14,6 +18,11 @@ namespace Pancoast\Common\ObjectRegistry;
  */
 interface SupportedTypesInterface
 {
+    /**
+     * Key that default types live under
+     */
+    const KEY_DEFAULTS = 'defaults';
+
     /**
      * Add supported type
      *
@@ -45,15 +54,23 @@ interface SupportedTypesInterface
     //    public function removeKey($objectKey);
 
     /**
-     * Add a default supported type
+     * Add a default supported type (class or interface)
      *
      * When checking if a type is supported, defaults are checked for all classes.
      *
      * @param string $class Class or interface
      *
      * @return SupportedTypesInterface|self
+     * @throws \Pancoast\Common\Exception\InvalidArgumentException
      */
     public function addDefault($class);
+
+    /**
+     * @param array $classes Default classes or interfaces
+     *
+     * @return SupportedTypesInterface|self
+     */
+    public function addDefaults(array $classes);
 
     /**
      * Get supported default types
@@ -63,13 +80,14 @@ interface SupportedTypesInterface
     public function getDefaults();
 
     /**
-     * Get supported type by object key
+     * Get supported types by object key
      *
-     * @param string $objectKey
+     * @param null|string $objectKey
      *
-     * @return string
+     * @return array
+     * @throws \Pancoast\Common\Exception\InvalidArgumentException
      */
-    public function get($objectKey);
+    public function get($objectKey = null);
 
     /**
      * Get all supported types including keys and defaults
@@ -88,17 +106,33 @@ interface SupportedTypesInterface
      *                                 or null to match $class to any type including defaults.
      *
      * @return bool
-     * @internal param object|string $class
+     * @throws \Pancoast\Common\Exception\InvalidArgumentException
      */
     public function isSupported($object, $objectKey = null);
 
     /**
      * Is object key supported
      *
-     * @param string $objectKey Specific object key or 'defaults'
+     * Note that if there are defaults available, this will return true since an object can register to any key as long
+     * as it matches a default.
+     *
+     * @param string $objectKey Specific object key or self::KEY_DEFAULTS
      *
      * @return bool
-     * @throws InvalidArgumentException
+     * @throws \Pancoast\Common\Exception\InvalidArgumentException
      */
     public function isSupportedKey($objectKey);
+
+    /**
+     * Validate an object's type against supported types
+     *
+     * This is similar to self::isSupported() but throws exceptions
+     *
+     * @param string|object $object    Class or object
+     * @param string        $objectKey Supported key to check
+     * @throws \Pancoast\Common\ObjectRegistry\Exception\ObjectNotSupportedException
+     * @throws \Pancoast\Common\ObjectRegistry\Exception\ObjectKeyNotSupportedException
+     * @throws \Pancoast\Common\Exception\InvalidArgumentException
+     */
+    public function validate($object, $objectKey);
 }

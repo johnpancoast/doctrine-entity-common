@@ -8,10 +8,8 @@
 namespace Pancoast\Common\ObjectRegistry;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Pancoast\Common\ObjectRegistry\Exception\DefaultKeyNotSupportedException;
-use Pancoast\Common\ObjectRegistry\Exception\NoDefaultObjectException;
+use Pancoast\Common\ObjectRegistry\Exception\NotLazyLoadableKeyException;
 use Pancoast\Common\ObjectRegistry\Exception\ObjectKeyNotRegisteredException;
-use Pancoast\Common\Util\CachedValidator;
 use Pancoast\Common\Util\Validator;
 
 /**
@@ -27,36 +25,30 @@ class ObjectRegistry implements ObjectRegistryInterface
     protected $coll;
 
     /**
-     * Collect of object keys that have been lazy loaded
+     * Type validator
      *
-     * @var array
+     * @var Validator
      */
-    private $lazyLoadedKeys = [];
+    protected $validator;
 
     /**
-     * @var CachedValidator
+     * @var array
      */
-    protected static $validator;
+    private $lazyLoadKeys = [];
 
     /**
      * Constructor
      *
-     * @param array $registryValues
+     * @param array                $registryValues
+     * @param Validator|null $validator
      */
-    public function __construct(array $registryValues = [])
+    public function __construct(array $registryValues = [], Validator $validator = null)
     {
         $this->coll = new ArrayCollection();
-        static::$validator = new CachedValidator();
+        $this->validator = $validator ?: new Validator();
 
-        foreach ($registryValues as $objectKey => $object) {
-            // Allow array of only keys to be passed
-            // Implementations, children can deal with handling null object.
-            if (is_int($objectKey)) {
-                $objectKey = $object;
-                $object = null;
-            }
-
-            $this->register($objectKey, $object);
+        if (!empty($registryValues)) {
+            $this->registerArray($registryValues);
         }
     }
 
@@ -66,9 +58,13 @@ class ObjectRegistry implements ObjectRegistryInterface
     public function register($objectKey, $object = null)
     {
         $this->coll->set(
-            static::$validator->getValidatedValue($objectKey, 'string'),
-            static::$validator->getValidatedValue($object, ['object', 'null'])
+            $this->validator->getValidatedValue($objectKey, 'string'),
+            $this->validator->getValidatedValue($object, ['object', 'null'])
         );
+
+        if ($object instanceof LazyLoadableObjectInterface) {
+            $this->lazyLoadKeys[$objectKey] = false;
+        }
 
         return $this;
     }
@@ -76,14 +72,33 @@ class ObjectRegistry implements ObjectRegistryInterface
     /**
      * @inheritDoc
      */
+    public function registerArray(array $objects)
+    {
+        foreach ($objects as $objectKey => $object) {
+            // Allow array of only keys to be passed
+            if (is_int($objectKey)) {
+                $objectKey = $object;
+                $object = null;
+            }
+
+            $this->register($objectKey, $object);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * @inheritDoc
+     */
     public function get($objectKey)
     {
-        $objectKey = static::$validator->getValidatedValue($objectKey, 'string');
+        $objectKey = $this->validator->getValidatedValue($objectKey, 'string');
 
         if (!$this->isRegisteredKey($objectKey)) {
             throw new ObjectKeyNotRegisteredException(
                 sprintf(
-                    'Object key \'%s\' not registered in this registry',
+                    'Object key "%s" not registered in this registry',
                     $objectKey
                 )
             );
@@ -91,11 +106,11 @@ class ObjectRegistry implements ObjectRegistryInterface
 
         $object = $this->coll->get($objectKey);
 
-        if ($object instanceof LazyLoadableObjectInterface && !in_array($objectKey, $this->lazyLoadedKeys)) {
+        // only load lazy loadable objects that haven't already been loaded. this also prevents infinite loops for
+        // cases where loaded object are also lazy loadable.
+        if ($object instanceof LazyLoadableObjectInterface && !$this->lazyLoadKeys[$objectKey] ) {
             $object = $object->loadObject($objectKey);
-
-            // prevents loading the object further if loaded object also matched lazy loadable interface
-            $this->lazyLoadedKeys[] = $objectKey;
+            $this->lazyLoadKeys[$objectKey] = true;
         }
 
         return $object;
@@ -122,9 +137,9 @@ class ObjectRegistry implements ObjectRegistryInterface
      */
     public function isRegistered($object, $objectKey = null)
     {
-        static::$validator->validateType($object, 'object');
+        $this->validator->validateType($object, 'object');
         // checked by $this->get() call below
-        //static::$validator->validateType($objectKey, ['string', 'null']);
+        //$this->validator->validateType($objectKey, ['string', 'null']);
 
         if ($objectKey) {
             return spl_object_hash($object) == spl_object_hash($this->get($objectKey));
@@ -144,6 +159,29 @@ class ObjectRegistry implements ObjectRegistryInterface
      */
     public function isRegisteredKey($objectKey)
     {
-        return $this->coll->containsKey(static::$validator->getValidatedValue($objectKey, 'string'));
+        return $this->coll->containsKey($this->validator->getValidatedValue($objectKey, 'string'));
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function isLoaded($objectKey)
+    {
+        if (!$this->isLazyLoadable($objectKey)) {
+            throw new NotLazyLoadableKeyException(sprintf(
+                'Object key "%s" is not lazy loadable.',
+                $objectKey
+            ));
+        }
+
+        return $this->lazyLoadKeys[$objectKey];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function isLazyLoadable($objectKey)
+    {
+        return isset($this->lazyLoadKeys[$objectKey]);
     }
 }

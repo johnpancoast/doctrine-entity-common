@@ -10,16 +10,17 @@ namespace Pancoast\Common\Util;
 use Pancoast\Common\Exception\InvalidArgumentException;
 use Pancoast\Common\Util\Exception\NotTraversableException;
 use Pancoast\Common\Util\Exception\InvalidTypeArgumentException;
+use Symfony\Component\VarDumper\VarDumper;
 
 /**
  * Generic type validator
  *
  * This is a simple PHP type checking helper. It isn't for full-fledged validation like symfony/validator provides (for
- * example). It's more for is_string() like checks but with helpful APIs to allow for multiple types or values to be
+ * example). It's more for is_string() like checks but with helpful APIs to allow for multiple types of values to be
  * checked with one call.
  *
  * @author John Pancoast <johnpancoaster@gmail.com>
- * @todo   Add permanent tests (the code has been tested)
+ * @todo   Add permanent tests (the code has been tested though)
  * @todo   Add self::validateTypeArray()
  */
 class Validator
@@ -37,8 +38,7 @@ class Validator
      * You can pass a single value and type or you can pass an array of either. If you want to validate each element of
      * an array (instead of the array itself), make sure to set $traverseValues to true.
      *
-     * This method will return true if all values being validated (as decided by $traverseValues) are of any of the
-     * passed types.
+     * This method will return true if all values are of any of the types.
      *
      * @param mixed|array|\Traversable $value          Value or array of values of whose types must be one of the
      *                                                 passed $type(s).
@@ -56,22 +56,23 @@ class Validator
      */
     public static function isType($value, $type, $traverseValues = false)
     {
-        self::$lastFailure;
+        self::$lastFailure = null;
 
         $types = static::isTraversable($type) ? $type : [$type];
 
-        if ($traverseValues) {
-            if (!static::isTraversable($value)) {
-                throw new NotTraversableException('Attempting to traverse a non-traversable $value');
-            }
+        $isValueTraversable = static::isTraversable($value);
+
+        if ($traverseValues && !$isValueTraversable) {
+            throw new NotTraversableException('Attempting to traverse a non-traversable $value');
+//        } elseif ($isValueTraversable) {
+//            $values = [$value];
         } else {
-            // if not traversing values but an array was passed as value, put it into an array so as to not traverse the
-            // elements below.
-            $values = static::isTraversable($value) ? [$value] : $value;
+            $values = [$value];
         }
 
         // loop each passed value, if value matches any of the types, loop to next value.
         // if end reached
+        // TODO change this and above so array creation not always necessary
         for ($i = 0, $c = count($values); $i < $c; $i++) {
             $value = $values[$i];
 
@@ -214,7 +215,7 @@ class Validator
      *
      * @throws InvalidTypeArgumentException If type passed is invalid
      * @throws InvalidArgumentException     If $value does not match type
-     * @throws NotTraversableException If $traverseValues is true and $value not traversable
+     * @throws NotTraversableException If $traverseValues is true ad $value not traversable
      * @see Validator::isType()
      */
     public static function validateType($value, $type, $traverseValues = false)

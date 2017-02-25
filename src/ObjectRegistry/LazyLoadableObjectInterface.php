@@ -17,10 +17,7 @@ interface LazyLoadableObjectInterface
     /**
      * Create and return object
      *
-     * Although your implementation can cache the object to be sure, at the moment it's not necessary since object
-     * registries will load the object only once.
-     *
-     * @param string $objectKey
+     * @param string $objectKey Object key that the implementation of this class was registered to in the repository.
      *
      * @return object
      */
