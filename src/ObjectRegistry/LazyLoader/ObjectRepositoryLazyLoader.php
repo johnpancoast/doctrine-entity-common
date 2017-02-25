@@ -15,7 +15,7 @@ use Pancoast\Common\Util\Validator;
 /**
  * An object repository implementation of our lazy loadable interface
  *
- * This can used by/for doctrine repositories
+ * This can used for doctrine repositories
  *
  * @author John Pancoast <johnpancoaster@gmail.com>
  */
@@ -28,6 +28,8 @@ class ObjectRepositoryLazyLoader implements LazyLoadableObjectInterface
 
     /**
      * Constructor
+     *
+     * @param ObjectManager $objectManager
      */
     public function __construct(ObjectManager $objectManager)
     {

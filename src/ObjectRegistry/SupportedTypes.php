@@ -8,6 +8,7 @@
 namespace Pancoast\Common\ObjectRegistry;
 
 use Pancoast\Common\ObjectRegistry\Exception\ObjectKeyNotSupportedException;
+use Pancoast\Common\ObjectRegistry\Exception\ObjectNotSupportedException;
 use Pancoast\Common\Util\Validator;
 
 /**
@@ -192,21 +193,25 @@ class SupportedTypes implements SupportedTypesInterface
     {
         if (!$this->isSupported($object, $objectKey)) {
             if ($this->isSupportedKey($objectKey)) {
-                throw new ObjectNotSupportedException(
-                    sprintf(
-                        'Objects registering with key "%s" must be a child or implementation of a supported type. Received "%s". Supported types are: ["%s"]',
-                        $objectKey,
-                        get_class($object),
-                        implode('", "', $this->getAll())
-                    )
-                );
+                throw new ObjectNotSupportedException(sprintf(
+                    'The object registering to key "%s" must be a child or implementation of a supported types. Received "%s". Supported types are ["%s"].',
+                    $objectKey,
+                    get_class($object),
+                    implode('", "', $this->getAll())
+                ));
+            } elseif (empty($this->types) && empty($this->defaultTypes)) {
+                throw new ObjectKeyNotSupportedException(sprintf(
+                    'Key must be supported and the object registering to key "%s" must be a child or implementation of a supported type. Received "%s". NO SUPPORTED TYPES SET.',
+                    $objectKey,
+                    get_class($object)
+                ));
             } else {
-                throw new ObjectKeyNotSupportedException(
-                    sprintf(
-                        'Unsupported registry key "%s"',
-                        $objectKey
-                    )
-                );
+                throw new ObjectKeyNotSupportedException(sprintf(
+                    'Key must be supported and the object registering to key "%s" must be a child or implementation of a supported types. Received "%s". Supported types are ["%s"].',
+                    $objectKey,
+                    get_class($object),
+                    implode('", "', $this->getAll())
+                ));
             }
         }
     }

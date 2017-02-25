@@ -6,6 +6,7 @@
 
 namespace Pancoast\Common\ObjectRegistry;
 
+use Pancoast\Common\ObjectRegistry\Exception\NoDefaultObjectException;
 use Pancoast\Common\ObjectRegistry\Exception\ObjectKeyNotSupportedException;
 use Pancoast\Common\ObjectRegistry\Exception\SupportedTypesNotSetException;
 
@@ -55,14 +56,17 @@ class KnownObjectRegistry extends ObjectRegistry implements KnownObjectRegistryI
         $defaultObject = null,
         SupportedTypesInterface $supportedTypes = null
     ) {
-        // call on parent since we need things it constructs but don't pass registry values.
-        // we'll do it manually below after we know the default has been set.
+        // call on parent since we need things it constructs right away but don't pass registry values.
+        // we'll do that manually below after we know our default has been set.
         parent::__construct();
 
-        $this->supportedTypes = $supportedTypes ?: new SupportedTypes([]);
+        $this->supportedTypes = $supportedTypes ?: new SupportedTypes();
 
         // let children define supported types
         $this->defineSupportedTypes($this->supportedTypes);
+
+        // add the lazy loadable type that parent supports to our supported types.
+        $this->supportedTypes->addDefault(LazyLoadableObjectInterface::class);
 
         if ($defaultObject) {
             $this->setDefaultObject($defaultObject);
@@ -76,10 +80,12 @@ class KnownObjectRegistry extends ObjectRegistry implements KnownObjectRegistryI
     /**
      * Override this and use $types to add supported types
      *
+     * This is for children classes to define more supported types. Clients, use self::getSupportedTypes() to get the
+     * types.
+     *
      * @param SupportedTypesInterface $types
      *
      * @see KnownObjectRegistryInterface::getSupportedTypes()
-     * @see KnownObjectRegistry::buildSupportedTypes()
      */
     protected function defineSupportedTypes(SupportedTypesInterface $types)
     {
@@ -100,7 +106,7 @@ class KnownObjectRegistry extends ObjectRegistry implements KnownObjectRegistryI
                 throw new NoDefaultObjectException(
                     sprintf(
                         'Attempted to register a default object but no default has been set. Either register an object or set a default with %s::%s',
-                        static::class,
+                        self::class,
                         'setDefaultObject()'
                     )
                 );
