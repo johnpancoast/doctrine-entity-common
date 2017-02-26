@@ -8,6 +8,7 @@
 namespace Pancoast\Common\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection as CollectionInterface;
 use Pancoast\Common\Exception\InvalidArgumentException;
 use Pancoast\Common\Util\Exception\InvalidTypeArgumentException;
 use Pancoast\Common\Util\Validator;
@@ -22,7 +23,7 @@ class ArrayCollectionHelper
     /**
      * Get ArrayCollection from different types of traversable $elements
      *
-     * @param array|ArrayCollection $elements Array or ArrayCollection to build collection from.
+     * @param array|CollectionInterface $elements Array or ArrayCollection to build collection from.
      *
      * @return ArrayCollection
      * @throws InvalidArgumentException     If $elements not array or instance of ArrayCollection
@@ -33,11 +34,14 @@ class ArrayCollectionHelper
         // turn array into ArrayCollection.
         if (is_array($elements)) {
             $elements = new ArrayCollection($elements);
-        } elseif (!$elements instanceof ArrayCollection) {
+        } elseif (!$elements instanceof CollectionInterface) {
+            $type = gettype($elements);
+
             throw new InvalidArgumentException(
                 sprintf(
-                    '$elements must be an array or an instance of %s, but was of type %s', ArrayCollection::class,
-                    gettype($elements)
+                    '$elements must be an array or an instance of "%s", but was of type "%s"',
+                    CollectionInterface::class,
+                    $type == 'object' ? get_class($elements) : $type
                 )
             );
         }
@@ -49,11 +53,12 @@ class ArrayCollectionHelper
      * Get validated ArrayCollection from different types of traversable $elements
      *
      * @param array|ArrayCollection $elements Array or ArrayCollection to build collection from.
-     * @param bool|mixed|array      $type     A type or array of types of which each element must match
+     * @param bool|mixed|array      $type     A type or array of types of which each element must match one of.
      *
      * @return ArrayCollection
-     * @throws InvalidTypeArgumentException If the type you passed isn't a valid type to check against
-     * @throws InvalidArgumentException     If $element or any of its elemtns are of the wrong type
+     * @throws InvalidArgumentException
+     * @throws InvalidTypeArgumentException
+     * @throws \Pancoast\Common\Util\Exception\NotTraversableException
      */
     public function getValidatedCollection($elements, $type)
     {
