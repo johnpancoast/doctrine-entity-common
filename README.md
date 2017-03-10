@@ -3,9 +3,10 @@
 Common functionality for my PHP apps
 
 *Note that due to my idiocy I versioned this as a public v1 too early.* In the
-eyes of [semver](http://semver.org/), it matters since the API is public and
+eyes of [semver](http://semver.org/) it matters since the API is public and
 it's changing a lot, even as small as the API is. **Due to this, all versions
-below version 7 should be considered as version 0. Version 7.0.0 will be the official public API.**
+below version 7 should be considered as version 0. Version 7.0.0 will be the
+official public API.**
 
 ## Install
 
@@ -22,7 +23,7 @@ Or you can put this in inside the `require` block in your `composer.json` file t
 ```json
 {
   "require": {
-    "johnpancoast/php-common": "^6.1",
+    "johnpancoast/php-common": "^6.1"
   }
 }
 ```

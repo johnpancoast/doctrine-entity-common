@@ -28,7 +28,7 @@ class ArrayCollectionHelper
      * @return ArrayCollection
      * @throws InvalidArgumentException     If $elements not array or instance of ArrayCollection
      */
-    public function getCollection($elements)
+    public static function getCollection($elements)
     {
         // validate that $elements is either an array or ArrayCollection.
         // turn array into ArrayCollection.
@@ -60,9 +60,9 @@ class ArrayCollectionHelper
      * @throws InvalidTypeArgumentException
      * @throws \Pancoast\Common\Util\Exception\NotTraversableException
      */
-    public function getValidatedCollection($elements, $type)
+    public static function getValidatedCollection($elements, $type)
     {
-        return (new Validator())->getValidatedValue($this->getCollection($elements), $type);
+        return (new Validator())->getValidatedValue(static::getCollection($elements), $type);
     }
 }
 
