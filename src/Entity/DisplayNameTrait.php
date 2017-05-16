@@ -5,11 +5,10 @@
  * @license       MIT
  */
 
-
 namespace Pancoast\Common\Entity;
 
 /**
- * Display name beheavior
+ * Display name behavior
  *
  * This implements DisplayNameInterface
  *
@@ -17,32 +16,10 @@ namespace Pancoast\Common\Entity;
  */
 trait DisplayNameTrait
 {
+    use DisplayNameNoPropTrait;
+
     /**
      * @var string
      */
     protected $displayName;
-
-    /**
-     * Get displayName
-     *
-     * @return string
-     */
-    public function getDisplayName()
-    {
-        return $this->displayName;
-    }
-
-    /**
-     * Set displayName
-     *
-     * @param string $displayName
-     *
-     * @return $this
-     */
-    public function setDisplayName($displayName)
-    {
-        $this->displayName = $displayName;
-
-        return $this;
-    }
 }
