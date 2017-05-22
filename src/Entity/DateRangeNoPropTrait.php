@@ -62,8 +62,16 @@ trait DateRangeNoPropTrait
      */
     public function setEndDate(\DateTime $date = null)
     {
-        $this->endDate = $date ?: new \DateTime('1900-01-01 00:00:00');
+        $this->endDate = $date ?: new \DateTime($this->getDefaultDate());
 
         return $this;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getDefaultDate()
+    {
+        return new \DateTime();
     }
 }
