@@ -17,14 +17,14 @@ interface UniqueIdInterface
     /**
      * Get unique id
      *
-     * @return string
+     * @return string|int
      */
     public function getUniqueId();
 
     /**
      * Set unique id
      *
-     * @param string $id
+     * @param string|int $id
      *
      * @return $this
      */
