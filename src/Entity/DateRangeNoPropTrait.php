@@ -62,7 +62,15 @@ trait DateRangeNoPropTrait
      */
     public function setEndDate(\DateTime $date = null)
     {
-        $this->endDate = $date ?: new \DateTime($this->getDefaultDate());
+        if (!$date) {
+            $date = $this->getDefaultDate();
+
+            if (!$date instanceof \DateTime) {
+                throw new \RuntimeException("Expected valid datetime for default date");
+            }
+        }
+
+        $this->endDate = $date;
 
         return $this;
     }
