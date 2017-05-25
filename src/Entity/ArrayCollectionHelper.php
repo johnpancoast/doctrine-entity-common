@@ -28,7 +28,7 @@ class ArrayCollectionHelper
      * @return ArrayCollection
      * @throws InvalidArgumentException     If $elements not array or instance of ArrayCollection
      */
-    public static function getCollection($elements)
+    public static function getCollection($elements = [])
     {
         // validate that $elements is either an array or ArrayCollection.
         // turn array into ArrayCollection.
