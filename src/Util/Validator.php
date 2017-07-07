@@ -62,10 +62,11 @@ class Validator
 
         $isValueTraversable = static::isTraversable($value);
 
+        // convert all values to array
         if ($traverseValues && !$isValueTraversable) {
             throw new NotTraversableException('Attempting to traverse a non-traversable $value');
-//        } elseif ($isValueTraversable) {
-//            $values = [$value];
+        } elseif ($traverseValues) {
+            $values = $value;
         } else {
             $values = [$value];
         }
