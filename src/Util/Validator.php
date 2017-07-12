@@ -92,6 +92,9 @@ class Validator
                     case 'array':
                         $isValid = is_array($value);
                         break;
+                    case 'resource':
+                        $isValid = is_resource($value);
+                        break;
                     // sequential array
                     case 'array_seq':
                         if (!is_array($value)) {
