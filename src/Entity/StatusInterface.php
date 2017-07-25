@@ -18,21 +18,21 @@ interface StatusInterface
     /**
      * Set status
      *
-     * @param string|bool $status
+     * @param string|bool|int $status
      * @return $this
      */
     public function setStatus($status);
 
     /**
      * Get status
-     * @return string|bool
+     * @return string|bool|int
      */
     public function getStatus();
 
     /**
      * Is passed status valid
      *
-     * @param string|bool $status
+     * @param string|bool|int $status
      *
      * @return bool
      */
