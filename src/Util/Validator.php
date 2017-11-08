@@ -138,6 +138,9 @@ class Validator
                     case 'integer':
                         $isValid = is_int($value);
                         break;
+                    case 'float':
+                        $isValid = is_float($value);
+                        break;
                     case 'string':
                         $isValid = is_string($value);
                         break;
