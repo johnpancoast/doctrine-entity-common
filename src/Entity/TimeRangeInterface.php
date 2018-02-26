@@ -10,6 +10,8 @@ namespace Pancoast\Common\Entity;
 /**
  * Contract for entities that have a time range
  *
+ * Only hour and minute properties are relevant for \DateTime objects.
+ *
  * @author John Pancoast <johnpancoaster@gmail.com>
  */
 interface TimeRangeInterface
@@ -17,36 +19,28 @@ interface TimeRangeInterface
     /**
      * Get start time
      *
-     * Format will be 'hh:mm'
-     *
-     * @return string
+     * @return \DateTime
      */
     public function getStartTime();
 
     /**
      * Set start time
      *
-     * Accepts format 'hh:mm'
-     *
-     * @return string
+     * @param \DateTime $startTime
      */
-    public function setStartTime();
+    public function setStartTime(\DateTime $startTime);
 
     /**
      * Get end time
      *
-     * Format will be 'hh:mm'
-     *
-     * @return string
+     * @return \DateTime
      */
     public function getEndTime();
 
     /**
      * Set start time
      *
-     * Accepts format 'hh:mm'
-     *
-     * @return string
+     * @param \DateTime $endTime
      */
-    public function setEndTime();
+    public function setEndTime(\DateTime $endTime);
 }
