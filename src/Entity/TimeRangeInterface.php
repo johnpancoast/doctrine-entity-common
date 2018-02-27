@@ -19,28 +19,28 @@ interface TimeRangeInterface
     /**
      * Get start time
      *
-     * @return \DateTime
+     * @return \DateTime|null
      */
     public function getStartTime();
 
     /**
      * Set start time
      *
-     * @param \DateTime $startTime
+     * @param \DateTime|null $startTime
      */
-    public function setStartTime(\DateTime $startTime);
+    public function setStartTime(\DateTime $startTime = null);
 
     /**
      * Get end time
      *
-     * @return \DateTime
+     * @return \DateTime|null
      */
     public function getEndTime();
 
     /**
      * Set start time
      *
-     * @param \DateTime $endTime
+     * @param \DateTime|null $endTime
      */
-    public function setEndTime(\DateTime $endTime);
+    public function setEndTime(\DateTime $endTime = null);
 }
