@@ -24,9 +24,11 @@ interface HumanNameInterface
     /**
      * Set person's first name
      *
-     * @return string
+     * @param string $firstName
+     *
+     * @return static
      */
-    public function setFirstName();
+    public function setFirstName($firstName);
 
     /**
      * Get person's middle name
@@ -38,9 +40,11 @@ interface HumanNameInterface
     /**
      * Set person's middle name
      *
-     * @return string
+     * @param string $middleName
+     *
+     * @return static
      */
-    public function setMiddleName();
+    public function setMiddleName($middleName);
 
     /**
      * Get person's last name
@@ -52,25 +56,29 @@ interface HumanNameInterface
     /**
      * Set person's last name
      *
-     * @return mixed
+     * @param string $lastName
+     *
+     * @return static
      */
-    public function setLastName();
+    public function setLastName($lastName);
 
     /**
      * Get person's surname
      *
-     * MUST return same as self::getLastName()
+     * Alias of self::getLastName()
      *
-     * @return mixed
+     * @see HumanNameInterface::getLastName()
+     * @return string
      */
     public function getSurname();
 
     /**
      * Set person's surname
      *
-     * MUST set same as self::setLastName()
+     * Alias of self::setLastName()
      *
+     * @see HumanNameInterface::setLastName()
      * @return mixed
      */
-    public function setSurname();
+    public function setSurname($surname);
 }
