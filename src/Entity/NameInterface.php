@@ -16,11 +16,11 @@ namespace Pancoast\Common\Entity;
 interface NameInterface
 {
     /**
-     * @param string $title
+     * @param string $name
      *
      * @return object Instance of current entity after setting title
      */
-    public function setName($title);
+    public function setName($name);
 
     /**
      * @return string
