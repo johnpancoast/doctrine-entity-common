@@ -81,4 +81,11 @@ interface HumanNameInterface
      * @return mixed
      */
     public function setSurname($surname);
+
+    /**
+     * Get full concatenated name
+     *
+     * @return string
+     */
+    public function getName();
 }
