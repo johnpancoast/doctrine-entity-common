@@ -6,7 +6,7 @@ Common functionality for my PHP apps
 eyes of [semver](http://semver.org/), it matters since the API is public and
 it's changing a lot, regardless of the fact that nobody uses this besides me =P.
 **Due to this, all versions below version 7 should be considered as version 0.
-Version 7.0.0 will be the official public API.
+Version 7.0.0 will be the official public API.**
 
 ## Install
 
