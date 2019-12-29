@@ -1,5 +1,9 @@
 # php-common
 
+**This lib is defunct. The only things here that ever saw use were the common
+entity interfaces. All other code was supplemented by other packages. I've left
+it here for reference.**
+
 Common functionality for my PHP apps
 
 *Note that due to my idiocy I versioned this as a public v1 too early.* In the
